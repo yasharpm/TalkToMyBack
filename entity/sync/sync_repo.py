@@ -4,6 +4,7 @@ from entity.base_repo import BaseRepo
 from entity.sync.sync import Sync
 from entity.sync.sync_events import *
 from entity.post.post import Post
+from entity.user.user import User
 
 
 class SyncRepo(BaseRepo):
@@ -81,3 +82,27 @@ class SyncRepo(BaseRepo):
         sync.set_mongo_id(result.inserted_id)
 
         return sync
+
+    def sync(self, user, update_token, count):
+        affected_user_id = user.get_obj()[User.ID]
+
+        last_sync_time = update_token if update_token is not None else 0
+
+        query = {Sync.AFFECTED_USER_ID: affected_user_id, Sync.CREATED_TIME: {"$gt": last_sync_time}}
+
+        raw_syncs = self.db.find(query).sort(Sync.CREATED_TIME).limit(count)
+
+        syncs = []
+        new_token = None
+
+        for raw_sync in raw_syncs:
+            sync = Sync(companion=raw_sync)
+
+            syncs.append(sync.get_public_obj())
+
+            new_token = raw_sync[Sync.CREATED_TIME]
+
+        total_count = self.db.count_documents(query)
+        has_more = total_count != len(syncs)
+
+        return syncs, new_token, has_more
