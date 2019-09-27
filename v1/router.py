@@ -4,6 +4,7 @@ import v1.comment.router
 import v1.like.router
 import v1.report.router
 import v1.sync.router
+import v1.status.router
 
 
 def setup(app, prefix):
@@ -15,3 +16,4 @@ def setup(app, prefix):
     v1.like.router.setup(app, prefix)
     v1.report.router.setup(app, prefix)
     v1.sync.router.setup(app, prefix)
+    v1.status.router.setup(app, prefix)
