@@ -1,2 +1,4 @@
 .idea/
 __pycache__/
+myback.log
+myback_pid.txt
