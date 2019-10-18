@@ -84,16 +84,21 @@ class SyncRepo(BaseRepo):
         return sync
 
     def sync(self, user, update_token, count):
+        try:
+            update_token = int(update_token)
+        except TypeError:
+            update_token = 0
+
         affected_user_id = user.get_obj()[User.ID]
 
-        last_sync_time = update_token if update_token is not None else 0
+        last_sync_time = update_token
 
         query = {Sync.AFFECTED_USER_ID: affected_user_id, Sync.CREATED_TIME: {"$gt": last_sync_time}}
 
         raw_syncs = self.db.find(query).sort(Sync.CREATED_TIME).limit(count)
 
         syncs = []
-        new_token = None
+        new_token = update_token
 
         for raw_sync in raw_syncs:
             sync = Sync(companion=raw_sync)
