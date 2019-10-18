@@ -86,7 +86,9 @@ class SyncRepo(BaseRepo):
     def sync(self, user, update_token, count):
         try:
             update_token = int(update_token)
-        except TypeError or ValueError:
+        except TypeError:
+            update_token = 0
+        except ValueError:
             update_token = 0
 
         affected_user_id = user.get_obj()[User.ID]
