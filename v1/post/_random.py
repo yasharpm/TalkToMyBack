@@ -30,7 +30,7 @@ class random:
             return
 
         posts = PostRepo().random_posts(count, language, country)
-
+        print(posts)
         resp.status = falcon.HTTP_200
         resp.media = {'posts': posts}
 
