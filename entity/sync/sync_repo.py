@@ -39,7 +39,7 @@ class SyncRepo(BaseRepo):
         event = {
             Sync.EVENT_TYPE: EVENT_NEW_VIEW,
             Sync.ACTOR_USER_ID: bytes.fromhex(actor),
-            Sync.AFFECTED_USER_ID: bytes.fromhex(affected),
+            Sync.AFFECTED_USER_ID: bytes.fromhex(affected) if affected else None,
             Sync.CONTENT: {'postId': post_id, 'views': views}
         }
 

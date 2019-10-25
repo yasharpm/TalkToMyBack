@@ -59,11 +59,12 @@ class seen:
 
             affected_user = post.get_user_id()
 
-            affected_posts = aggregated_affected_users.get(affected_user, {})
+            if affected_user:
+                affected_posts = aggregated_affected_users.get(affected_user, {})
 
-            affected_posts[post.get_mongo_id()] = post.get_view_count()
+                affected_posts[post.get_mongo_id()] = post.get_view_count()
 
-            aggregated_affected_users[affected_user] = affected_posts
+                aggregated_affected_users[affected_user] = affected_posts
 
             sync_repo.new_view(actor=user.get_public_id(), affected=post.get_user_id(), post_id=post.get_public_id(),
                                views=view_count)
