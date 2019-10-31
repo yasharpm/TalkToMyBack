@@ -91,7 +91,12 @@ class UserRepo(BaseRepo):
         )
 
     def update_user_post(self, post):
-        user_id = bytes.fromhex(post.get_user_id())
+        raw_user_id = post.get_user_id()
+
+        if not raw_user_id:
+            return
+
+        user_id = bytes.fromhex(raw_user_id)
 
         user_obj = self.db.find_one({User.ID: user_id})
 
