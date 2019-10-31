@@ -195,6 +195,9 @@ class UserRepo(BaseRepo):
         )
 
     def on_report_on_user(self, user_id, report):
+        if not user_id:
+            return
+
         user_id = bytes.fromhex(user_id)
 
         user_obj = self.db.find_one({User.ID: user_id})
