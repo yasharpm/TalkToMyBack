@@ -55,7 +55,7 @@ class SyncRepo(BaseRepo):
         event = {
             Sync.EVENT_TYPE: EVENT_NEW_COMMENT,
             Sync.ACTOR_USER_ID: bytes.fromhex(actor),
-            Sync.AFFECTED_USER_ID: bytes.fromhex(affected),
+            Sync.AFFECTED_USER_ID: bytes.fromhex(affected) if affected else None,
             Sync.CONTENT: comment.get_obj()
         }
 
@@ -71,7 +71,7 @@ class SyncRepo(BaseRepo):
         event = {
             Sync.EVENT_TYPE: EVENT_NEW_LIKE if liked else EVENT_REMOVED_LIKE,
             Sync.ACTOR_USER_ID: bytes.fromhex(actor),
-            Sync.AFFECTED_USER_ID: bytes.fromhex(affected),
+            Sync.AFFECTED_USER_ID: bytes.fromhex(affected) if affected else None,
             Sync.CONTENT: like.get_obj()
         }
 
