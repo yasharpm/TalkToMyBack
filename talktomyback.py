@@ -10,7 +10,7 @@ app = falcon.API()
 v1.router.setup(app, '/api')
 
 if __name__ == '__main__':
-    notification.gonification.start()
+    notification.gonification.init()
 
     httpd = make_server('', 8000, app)
     print('Serving on port 8000...')
