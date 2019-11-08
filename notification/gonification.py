@@ -23,3 +23,4 @@ def send_notification(user, sync):
     message = messaging.Message(data=data, token=fcm_token, notification=notification)
     response = messaging.send(message)
 
+    print('push response:', response)
