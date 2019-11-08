@@ -15,6 +15,7 @@ class User(BaseEntity):
     LIKES = 'likes'
     REPORTS = 'reports'
     REPORTS_ON_USER = 'reportsOnUser'
+    FCM_TOKEN = 'fcmToken'
 
     def __init__(self, password_hash=None, companion=None):
         if not companion:

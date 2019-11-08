@@ -38,6 +38,17 @@ class UserRepo(BaseRepo):
 
         return None
 
+    def set_fcm_token(self, user, token):
+        user_obj = user.get_obj()
+        user_obj[User.FCM_TOKEN] = token
+
+        self.db.update_one(
+            {User.MONGO_ID: user_obj[User.MONGO_ID]},
+            {"$set": {
+                User.FCM_TOKEN: user_obj[User.FCM_TOKEN]
+            }}
+        )
+
     def on_new_post(self, user, post):
         user_obj = user.get_obj()
 
