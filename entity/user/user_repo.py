@@ -105,7 +105,7 @@ class UserRepo(BaseRepo):
         raw_user_id = post.get_user_id()
 
         if not raw_user_id:
-            return
+            return None
 
         user_id = bytes.fromhex(raw_user_id)
 
@@ -133,6 +133,8 @@ class UserRepo(BaseRepo):
                     User.UPDATED_TIME: user_obj[User.UPDATED_TIME]
                 }}
             )
+
+        return user
 
     def on_new_comment(self, user, comment):
         user_obj = user.get_obj()

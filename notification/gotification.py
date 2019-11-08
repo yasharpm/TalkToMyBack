@@ -19,6 +19,6 @@ def send_notification(user, sync):
 
     data = {'sync': json.dumps(sync.get_public_obj())}
 
-    notification = messaging.Notification(title='salam', body='this is the body', image=None)
-    message = messaging.Message(data=data, token=fcm_token, notification=notification)
+    # notification = messaging.Notification(title='salam', body='this is the body', image=None)
+    message = messaging.Message(data=data, token=fcm_token)
     messaging.send(message)

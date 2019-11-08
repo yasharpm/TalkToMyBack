@@ -6,7 +6,7 @@ from entity.comment.comment import Comment
 from entity.post.post_repo import PostRepo
 from entity.user.user_repo import UserRepo
 from entity.sync.sync_repo import SyncRepo
-from notification import gonification
+from notification import gotification
 
 MINIMUM_COMMENT_LENGTH = 1
 
@@ -41,14 +41,14 @@ class _:
 
         user_repo = UserRepo()
 
-        user_repo.update_user_post(post)
+        receiving_user = user_repo.update_user_post(post)
 
         user_repo.on_new_comment(user, comment)
 
         sync = SyncRepo().new_comment(actor=user.get_public_id(), affected=post.get_user_id(), comment=comment)
 
-        #  TODO Use sync to send a notification.
-        gonification.send_notification(user, sync)
+        # Use sync to send a notification.
+        gotification.send_notification(receiving_user, sync)
 
         resp.status = falcon.HTTP_200
         resp.media = comment.get_obj()
