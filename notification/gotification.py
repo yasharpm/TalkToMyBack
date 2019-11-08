@@ -12,6 +12,9 @@ def init():
 
 
 def send_notification(user, sync):
+    if not user:
+        return
+
     fcm_token = user.get_obj()[User.FCM_TOKEN]
 
     if not fcm_token:
