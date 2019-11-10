@@ -1,4 +1,5 @@
 import pymongo
+import ttm_util
 
 from entity.base_repo import BaseRepo
 from entity.sync.sync import Sync
@@ -84,6 +85,9 @@ class SyncRepo(BaseRepo):
         return sync
 
     def sync(self, user, update_token, count):
+        if not update_token:
+            return [], ttm_util.now(), False
+
         try:
             update_token = int(update_token)
         except TypeError:
