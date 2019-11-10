@@ -16,7 +16,7 @@ class _:
             return
 
         post_id = req.media.get('postId')
-        comment_id = req.media.get('commentId') # Ignored because reporting is censorship in the first place.
+        comment_id = req.media.get('commentId')  # Ignored because reporting is censorship in the first place.
         reason = req.media.get('reason')
         description = req.media.get('description')
 
@@ -44,6 +44,11 @@ class _:
         if not post:
             resp.status = falcon.HTTP_406  # Not acceptable
             resp.media = {'message': 'Post id does not exist.'}
+            return
+
+        if comment_id:
+            resp.status = falcon.HTTP_200
+            resp.media = {'message': 'Ignored'}
             return
 
         report = Report(reporting_user_id=user.get_public_id(), reported_user_id=post.get_user_id(), post_id=post_id,
