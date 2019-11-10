@@ -6,8 +6,6 @@ from entity.post.post_repo import PostRepo
 from entity.user.user_repo import UserRepo
 from entity.sync.sync_repo import SyncRepo
 
-MINIMUM_COMMENT_LENGTH = 1
-
 
 class _:
 
@@ -18,6 +16,7 @@ class _:
             return
 
         post_id = req.media.get('postId')
+        comment_id = req.media.get('commentId') # Ignored because reporting is censorship in the first place.
         reason = req.media.get('reason')
         description = req.media.get('description')
 
