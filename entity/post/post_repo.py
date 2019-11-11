@@ -1,8 +1,17 @@
 import pymongo
+import random
+import collections
 
 from entity.base_repo import BaseRepo
 from entity.post.post import Post
 from entity.like.like import Like
+import ttm_util
+
+RECENT_POSTS_AGE = 1000 * 60 * 60 * 24 * 7
+MID_RANGE_POSTS_AGE = RECENT_POSTS_AGE * 8
+RECENT_POSTS_PROBABILITY = 0.5
+MID_RANGE_POSTS_PROBABILITY = 0.3
+PROBABILITIES = [RECENT_POSTS_PROBABILITY, MID_RANGE_POSTS_PROBABILITY, 1 - RECENT_POSTS_PROBABILITY - MID_RANGE_POSTS_PROBABILITY]
 
 
 class PostRepo(BaseRepo):
@@ -32,12 +41,38 @@ class PostRepo(BaseRepo):
         if country:
             match[Post.COUNTRY] = country
 
-        if len(match) > 0:
-            post_objs = self.db.aggregate([{'$match': match}, {'$sample': {'size': count}}])
-        else:
-            post_objs = self.db.aggregate([{'$sample': {'size': count}}])
+        now = ttm_util.now()
+
+        new_posts_age_range = (now - RECENT_POSTS_AGE, now)
+        mid_posts_age_range = (now - MID_RANGE_POSTS_AGE, now - RECENT_POSTS_AGE)
+        old_posts_age_range = (0, now - MID_RANGE_POSTS_AGE)
+        choices = [new_posts_age_range, mid_posts_age_range, old_posts_age_range]
+
+        post_age_range_counts = collections.Counter(random.choices(choices, PROBABILITIES, k=count))
 
         posts = []
+        remaining_count = count
+
+        for age_range in choices:
+            match[Post.CREATED_TIME] = {'$gt': age_range[0], '$lt': age_range[1]}
+
+            if age_range == old_posts_age_range:
+                range_count = remaining_count
+            else:
+                range_count = post_age_range_counts.get(age_range, 0)
+
+            range_posts = self._aggregate_posts(match, range_count, processed)
+
+            remaining_count -= len(range_posts)
+
+            posts.extend(range_posts)
+
+        return posts
+
+    def _aggregate_posts(self, match, count, processed):
+        posts = []
+
+        post_objs = self.db.aggregate([{'$match': match}, {'$sample': {'size': count}}])
 
         if processed:
             for post_obj in post_objs:
