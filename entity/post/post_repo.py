@@ -67,6 +67,8 @@ class PostRepo(BaseRepo):
 
             posts.extend(range_posts)
 
+        random.shuffle(posts)
+
         return posts
 
     def _aggregate_posts(self, match, count, processed):
