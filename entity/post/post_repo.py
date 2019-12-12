@@ -71,6 +71,50 @@ class PostRepo(BaseRepo):
 
         return posts
 
+    def exhibition_posts(self, count, language, country, day, week, month):
+        match = {}
+
+        if language:
+            match[Post.LANGUAGE] = language
+
+        if country:
+            match[Post.COUNTRY] = country
+
+        now = ttm_util.now()
+
+        TODAY_POSTS_AGE = 1000 * 60 * 60 * 24
+
+        day_posts_age_range = (now - TODAY_POSTS_AGE, now)
+        new_posts_age_range = (now - RECENT_POSTS_AGE, now - TODAY_POSTS_AGE)
+        mid_posts_age_range = (now - MID_RANGE_POSTS_AGE, now - RECENT_POSTS_AGE)
+        old_posts_age_range = (0, now - MID_RANGE_POSTS_AGE)
+        choices = [day_posts_age_range, new_posts_age_range, mid_posts_age_range, old_posts_age_range]
+
+        probabilities = [day / 100, week / 100, month / 100, 1 - (day + week + month) / 100]
+
+        post_age_range_counts = collections.Counter(random.choices(choices, probabilities, k=count))
+
+        posts = []
+        remaining_count = count
+
+        for age_range in choices:
+            match[Post.CREATED_TIME] = {'$gt': age_range[0], '$lt': age_range[1]}
+
+            if age_range == old_posts_age_range:
+                range_count = remaining_count
+            else:
+                range_count = post_age_range_counts.get(age_range, 0)
+
+            range_posts = self._aggregate_posts(match, range_count, True)
+
+            remaining_count -= len(range_posts)
+
+            posts.extend(range_posts)
+
+        random.shuffle(posts)
+
+        return posts
+
     def _aggregate_posts(self, match, count, processed):
         posts = []
 

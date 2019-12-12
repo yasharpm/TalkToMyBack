@@ -31,6 +31,26 @@ class _:
         resp.status = falcon.HTTP_200
         resp.media = post.get_public_obj()
 
+    def on_get(self, req, resp):
+        token = req.get_header('token')
+
+        if token != 'web':
+            resp.status = falcon.HTTP_401  # Unauthorized
+            resp.media = {'message': 'Invalid token!'}
+            return
+
+        post_id = req.get_param('id')
+
+        post = PostRepo().find_post(post_id)
+
+        if not post:
+            resp.status = falcon.HTTP_404  # Not found
+            resp.media = {'message': 'Post not found.'}
+            return
+
+        resp.status = falcon.HTTP_200
+        resp.media = post.get_public_obj()
+
 
 def setup(app, prefix):
     app.add_route(prefix, _())
