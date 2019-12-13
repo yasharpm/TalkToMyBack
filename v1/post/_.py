@@ -52,5 +52,13 @@ class _:
         resp.media = post.get_public_obj()
 
 
+    def on_options(self, req, resp):
+        resp.set_header('Access-Control-Allow-Origin', '*')
+        resp.set_header('Access-Control-Allow-Headers', '*')
+        resp.set_header('Access-Control-Allow-Methods', 'GET')
+        resp.set_header('Access-Control-Max-Age', 86400)  # One day
+        resp.media = {'message': 'OK'}
+
+
 def setup(app, prefix):
     app.add_route(prefix, _())
