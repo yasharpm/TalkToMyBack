@@ -32,6 +32,11 @@ class _:
         resp.media = post.get_public_obj()
 
     def on_get(self, req, resp):
+        resp.set_header('Access-Control-Allow-Origin', '*')
+        resp.set_header('Access-Control-Allow-Headers', '*')
+        resp.set_header('Access-Control-Allow-Methods', 'GET')
+        resp.set_header('Access-Control-Max-Age', 86400)  # One day
+
         token = req.get_header('token')
 
         if token != 'web':
