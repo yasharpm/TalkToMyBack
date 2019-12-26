@@ -40,9 +40,10 @@ class _:
         token = req.get_header('token')
 
         if token != 'web':
-            resp.status = falcon.HTTP_401  # Unauthorized
-            resp.media = {'message': 'Invalid token!'}
-            return
+            user = authenticate(req, resp)
+
+            if not user:
+                return
 
         post_id = req.get_param('id')
 
