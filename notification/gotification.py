@@ -7,7 +7,7 @@ from entity.user.user import User
 
 
 def init():
-    cred = credentials.Certificate("/home/talktome/talk-to-me-37911-firebase-adminsdk.json")
+    cred = credentials.Certificate("/home/talktome/opentalkz-firebase-adminsdk.json")
     firebase_admin.initialize_app(cred)
 
 
