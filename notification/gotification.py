@@ -1,6 +1,8 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
+from firebase_admin._messaging_utils import UnregisteredError
+from threading import Thread
 import json
 
 from entity.user.user import User
@@ -9,6 +11,13 @@ from entity.user.user import User
 def init():
     cred = credentials.Certificate("/home/talktome/opentalkz-firebase-adminsdk.json")
     firebase_admin.initialize_app(cred)
+
+
+def _send_message(message):
+    try:
+        messaging.send(message)
+    except UnregisteredError:
+        pass
 
 
 def send_notification(user, sync):
@@ -24,4 +33,5 @@ def send_notification(user, sync):
 
     # notification = messaging.Notification(title='salam', body='this is the body', image=None)
     message = messaging.Message(data=data, token=fcm_token)
-    messaging.send(message)
+
+    Thread(target=_send_message, args=(message, )).start()
