@@ -15,6 +15,8 @@ class Post(BaseEntity):
     LIKES = 'likes'
     REPORTS = 'reports'
 
+    UTIL_POST_COUNT = 'util_post_count'
+
     def __init__(self, user_id=None, content=None, language=None, country=None, companion=None):
         if not companion:
             companion = {}
@@ -57,12 +59,16 @@ class Post(BaseEntity):
         if not obj.get(Post.REPORTS):
             obj[Post.REPORTS] = []
 
+        if not obj.get(Post.UTIL_POST_COUNT):
+            obj[Post.UTIL_POST_COUNT] = None
+
         return obj
 
     def get_public_obj(self):
         public_obj = BaseEntity.get_public_obj(self)
 
         public_obj.pop(Post.REPORTS, None)
+        public_obj.pop(Post.UTIL_POST_COUNT, None)
 
         return public_obj
 

@@ -39,7 +39,11 @@ class PostRepo(BaseRepo):
     def new_post(self, user, content, language, country):
         post = Post(user_id=user.get_public_id(), content=content, language=language, country=country)
 
-        result = self.db.insert_one(post.get_obj())
+        post_obj = post.get_obj()
+
+        post_obj[Post.UTIL_POST_COUNT] = self.db.count()
+
+        result = self.db.insert_one(post_obj)
 
         post.set_mongo_id(result.inserted_id)
 
