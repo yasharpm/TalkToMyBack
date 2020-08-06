@@ -4,6 +4,9 @@ from entity.base_entity import BaseEntity
 class User(BaseEntity):
 
     PASSWORD = 'password'
+    NAME = 'name'
+    ABOUT = 'about'
+    CONTACT = 'contact'
     POSTED_POSTS_COUNT = 'postedPostsCount'
     POSTED_COMMENTS_COUNT = 'postedCommentsCount'
     POSTED_LIKES_COUNT = 'postedLikesCount'
@@ -28,6 +31,15 @@ class User(BaseEntity):
 
     def get_obj(self):
         obj = super(User, self).get_obj()
+
+        if not obj.get(User.NAME):
+            obj[User.NAME] = None
+
+        if not obj.get(User.ABOUT):
+            obj[User.ABOUT] = None
+
+        if not obj.get(User.CONTACT):
+            obj[User.CONTACT] = None
 
         if not obj.get(User.POSTED_VIEWS_COUNT):
             obj[User.POSTED_VIEWS_COUNT] = 0
@@ -54,3 +66,15 @@ class User(BaseEntity):
         obj[User.REPORTS_ON_USER_COUNT] = len(obj[User.REPORTS_ON_USER])
 
         return obj
+
+    def get_public_obj(self):
+        obj = BaseEntity.get_public_obj(self)
+
+        obj.pop(User.PASSWORD, None)
+        obj.pop(User.REPORTS_ON_USER_COUNT, None)
+        obj.pop(User.POSTS, None)
+        obj.pop(User.COMMENTS, None)
+        obj.pop(User.LIKES, None)
+        obj.pop(User.REPORTS, None)
+        obj.pop(User.REPORTS_ON_USER, None)
+        obj.pop(User.FCM_TOKEN, None)

@@ -7,6 +7,9 @@ from entity.post.post import Post
 from entity.like.like import Like
 
 
+IGNORE = object()
+
+
 class UserRepo(BaseRepo):
 
     def __init__(self):
@@ -37,6 +40,33 @@ class UserRepo(BaseRepo):
             return User(companion=companion)
 
         return None
+
+    def update_user(self, user, name=IGNORE, about=IGNORE, contact=IGNORE):
+        user_obj = user.get_obj()
+
+        changes = {}
+
+        if name != IGNORE:
+            user_obj[User.NAME] = name
+            changes[User.NAME] = name
+
+        if about != IGNORE:
+            user_obj[User.ABOUT] = about
+            changes[User.ABOUT] = about
+
+        if contact != IGNORE:
+            user_obj[User.CONTACT] = contact
+            changes[User.CONTACT] = contact
+
+        if len(changes) == 0:
+            return
+
+        user.on_updated()
+
+        self.db.update_one(
+            {User.MONGO_ID: user_obj[User.MONGO_ID]},
+            {"$set": changes}
+        )
 
     def set_fcm_token(self, user, token):
         user_obj = user.get_obj()
