@@ -19,7 +19,7 @@ ONE_DAY = 1000 * 60 * 60 * 24
 RANDOM_CASES = [
     (ONE_DAY * 10, 0.01),
     (ONE_DAY * 20, 0.1),
-    (ONE_DAY * 3 * 365, 0.3)
+    (ONE_DAY * 4 * 365, 0.3)
 ]
 
 TODAY_POSTS_AGE = ONE_DAY
