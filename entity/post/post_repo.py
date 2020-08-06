@@ -7,11 +7,22 @@ from entity.post.post import Post
 from entity.like.like import Like
 import ttm_util
 
-RECENT_POSTS_AGE = 1000 * 60 * 60 * 24 * 7
+ONE_DAY = 1000 * 60 * 60 * 24
+
+# RANDOM_CASES = [
+#     (ONE_DAY, 0.55),
+#     (ONE_DAY * 3, 0.25),
+#     (ONE_DAY * 7, 0.1),
+#     (ONE_DAY * 30, 0.05)
+# ]
+
+RANDOM_CASES = [
+    (ONE_DAY * 20, 0.4)
+]
+
+TODAY_POSTS_AGE = ONE_DAY
+RECENT_POSTS_AGE = TODAY_POSTS_AGE * 7
 MID_RANGE_POSTS_AGE = RECENT_POSTS_AGE * 8
-RECENT_POSTS_PROBABILITY = 0.5
-MID_RANGE_POSTS_PROBABILITY = 0.3
-PROBABILITIES = [RECENT_POSTS_PROBABILITY, MID_RANGE_POSTS_PROBABILITY, 1 - RECENT_POSTS_PROBABILITY - MID_RANGE_POSTS_PROBABILITY]
 
 
 class PostRepo(BaseRepo):
@@ -41,22 +52,17 @@ class PostRepo(BaseRepo):
         if country:
             match[Post.COUNTRY] = country
 
-        now = ttm_util.now()
+        age_ranges, probabilities = self._make_age_ranges_and_probabilities(RANDOM_CASES)
 
-        new_posts_age_range = (now - RECENT_POSTS_AGE, now)
-        mid_posts_age_range = (now - MID_RANGE_POSTS_AGE, now - RECENT_POSTS_AGE)
-        old_posts_age_range = (0, now - MID_RANGE_POSTS_AGE)
-        choices = [new_posts_age_range, mid_posts_age_range, old_posts_age_range]
-
-        post_age_range_counts = collections.Counter(random.choices(choices, PROBABILITIES, k=count))
+        post_age_range_counts = collections.Counter(random.choices(age_ranges, probabilities, k=count))
 
         posts = []
         remaining_count = count
 
-        for age_range in choices:
+        for age_range in age_ranges:
             match[Post.CREATED_TIME] = {'$gt': age_range[0], '$lt': age_range[1]}
 
-            if age_range == old_posts_age_range:
+            if age_range == age_ranges[-1]:
                 range_count = remaining_count
             else:
                 range_count = post_age_range_counts.get(age_range, 0)
@@ -80,27 +86,23 @@ class PostRepo(BaseRepo):
         if country:
             match[Post.COUNTRY] = country
 
-        now = ttm_util.now()
+        random_cases = [
+            (TODAY_POSTS_AGE, day / 100),
+            (RECENT_POSTS_AGE, week / 100),
+            (MID_RANGE_POSTS_AGE, month / 100)
+        ]
 
-        TODAY_POSTS_AGE = 1000 * 60 * 60 * 24
+        age_ranges, probabilities = self._make_age_ranges_and_probabilities(random_cases)
 
-        day_posts_age_range = (now - TODAY_POSTS_AGE, now)
-        new_posts_age_range = (now - RECENT_POSTS_AGE, now - TODAY_POSTS_AGE)
-        mid_posts_age_range = (now - MID_RANGE_POSTS_AGE, now - RECENT_POSTS_AGE)
-        old_posts_age_range = (0, now - MID_RANGE_POSTS_AGE)
-        choices = [day_posts_age_range, new_posts_age_range, mid_posts_age_range, old_posts_age_range]
-
-        probabilities = [day / 100, week / 100, month / 100, 1 - (day + week + month) / 100]
-
-        post_age_range_counts = collections.Counter(random.choices(choices, probabilities, k=count))
+        post_age_range_counts = collections.Counter(random.choices(age_ranges, probabilities, k=count))
 
         posts = []
         remaining_count = count
 
-        for age_range in choices:
+        for age_range in age_ranges:
             match[Post.CREATED_TIME] = {'$gt': age_range[0], '$lt': age_range[1]}
 
-            if age_range == old_posts_age_range:
+            if age_range == age_ranges[-1]:
                 range_count = remaining_count
             else:
                 range_count = post_age_range_counts.get(age_range, 0)
@@ -114,6 +116,33 @@ class PostRepo(BaseRepo):
         random.shuffle(posts)
 
         return posts
+
+    def _make_age_ranges_and_probabilities(self, random_cases):
+        age_ranges = []
+        probabilities = []
+
+        remaining_probability = 1
+
+        now = ttm_util.now()
+        current_time = now
+
+        for random_case in random_cases:
+            age, probability = random_case
+
+            relative_age = age - (now - current_time)
+
+            age_range = (current_time - relative_age, current_time)
+            age_ranges.append(age_range)
+
+            current_time = age_range[0]
+
+            probabilities.append(probability)
+            remaining_probability -= probability
+
+        age_ranges.append((0, current_time))
+        probabilities.append(remaining_probability)
+
+        return age_ranges, probabilities
 
     def _aggregate_posts(self, match, count, processed):
         posts = []
