@@ -4,6 +4,8 @@ from entity.base_entity import BaseEntity
 class Post(BaseEntity):
 
     USER_ID = 'user_id'
+    USER_NAME = 'user_name'
+    USER_ANONYMOUS = 'user_anonymous'
     CONTENT = 'content'
     LANGUAGE = 'language'
     COUNTRY = 'country'
@@ -17,12 +19,18 @@ class Post(BaseEntity):
 
     UTIL_POST_COUNT = 'util_post_count'
 
-    def __init__(self, user_id=None, content=None, language=None, country=None, companion=None):
+    def __init__(self, user_id=None, user_name=None, user_anonymous=None, content=None, language=None, country=None, companion=None):
         if not companion:
             companion = {}
 
         if user_id:
             companion[Post.USER_ID] = user_id
+
+        if user_name:
+            companion[Post.USER_NAME] = user_name
+
+        if user_anonymous is not None:
+            companion[Post.USER_ANONYMOUS] = user_anonymous
 
         if content:
             companion[Post.CONTENT] = content
@@ -37,6 +45,9 @@ class Post(BaseEntity):
 
     def get_obj(self):
         obj = super(Post, self).get_obj()
+
+        if not obj.get(Post.USER_ANONYMOUS):
+            obj[Post.USER_ANONYMOUS] = False
 
         if not obj.get(Post.COMMENT_COUNT):
             obj[Post.COMMENT_COUNT] = 0
@@ -69,6 +80,10 @@ class Post(BaseEntity):
 
         public_obj.pop(Post.REPORTS, None)
         public_obj.pop(Post.UTIL_POST_COUNT, None)
+
+        if public_obj[Post.USER_ANONYMOUS]:
+            public_obj[Post.USER_ID] = None
+            public_obj[Post.USER_NAME] = None
 
         return public_obj
 

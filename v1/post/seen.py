@@ -2,9 +2,9 @@ import falcon
 from itertools import groupby
 
 from v1.authentication import authenticate
-from entity.post.post_repo import PostRepo
-from entity.user.user_repo import UserRepo
-from entity.sync.sync_repo import SyncRepo
+from entity.repositories import USER_REPO
+from entity.repositories import POST_REPO
+from entity.repositories import SYNC_REPO
 
 
 class seen:
@@ -27,9 +27,7 @@ class seen:
             resp.media = {'message': 'postIds must be an array of post ids.'}
             return
 
-        user_repo = UserRepo()
-
-        user_repo.on_viewed_posts(user, len(post_ids))
+        USER_REPO.on_viewed_posts(user, len(post_ids))
 
         # We can cache the list of ids to process them later in batch. Not by every request.
         # The logic in app also tries to send the view notices in batch.
@@ -40,9 +38,6 @@ class seen:
 
         post_ids = sorted(post_ids)
 
-        post_repo = PostRepo()
-        sync_repo = SyncRepo()
-
         aggregated_affected_users = {}
 
         processed_post_ids = []
@@ -50,7 +45,7 @@ class seen:
         for post_id, values in groupby(post_ids):
             view_count = len(list(values))
 
-            post = post_repo.on_post_viewed(post_id, view_count)
+            post = POST_REPO.on_post_viewed(post_id, view_count)
 
             if not post:
                 continue
@@ -66,13 +61,13 @@ class seen:
 
                 aggregated_affected_users[affected_user] = affected_posts
 
-            sync_repo.new_view(actor=user.get_public_id(), affected=post.get_user_id(), post_id=post.get_public_id(),
+            SYNC_REPO.new_view(actor=user.get_public_id(), affected=post.get_user_id(), post_id=post.get_public_id(),
                                views=view_count)
 
         for user_id in aggregated_affected_users:
             affected_posts = aggregated_affected_users[user_id]
 
-            user_repo.set_view_on_posts(user_id, affected_posts)
+            USER_REPO.set_view_on_posts(user_id, affected_posts)
 
         resp.status = falcon.HTTP_200
         resp.media = {'postIds': processed_post_ids}

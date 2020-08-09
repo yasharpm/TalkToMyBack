@@ -2,7 +2,7 @@ import falcon
 
 from v1.authentication import authenticate
 from entity.user.user import User
-from entity.user.user_repo import UserRepo
+from entity.repositories import USER_REPO
 from entity.post.post import Post
 
 MAXIMUM_COUNT = 50
@@ -21,7 +21,7 @@ class userPosts:
         offset = req.get_param_as_int('offset', min_value=0, default=0)
 
         raw_user_id = bytes.fromhex(user_id)
-        user = UserRepo().find_user(raw_user_id)
+        user = USER_REPO.find_user(raw_user_id)
 
         if not user:
             resp.status = falcon.HTTP_NOT_FOUND

@@ -1,7 +1,7 @@
 import falcon
 
 from v1.authentication import authenticate
-from entity.user.user_repo import UserRepo
+from entity.repositories import USER_REPO
 
 
 class UpdateFCMToken:
@@ -19,9 +19,7 @@ class UpdateFCMToken:
             resp.media = {'message': 'Token is not given.'}
             return
 
-        user_repo = UserRepo()
-
-        user_repo.set_fcm_token(user, token)
+        USER_REPO.set_fcm_token(user, token)
 
         resp.status = falcon.HTTP_200
         resp.media = {'message': 'Success!'}

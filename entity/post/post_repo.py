@@ -4,6 +4,7 @@ import collections
 
 from entity.base_repo import BaseRepo
 from entity.post.post import Post
+from entity.user.user import User
 from entity.like.like import Like
 import ttm_util
 
@@ -37,7 +38,14 @@ class PostRepo(BaseRepo):
         self.db.create_index([(Post.REPORT_COUNT, pymongo.HASHED)], name='report_count')
 
     def new_post(self, user, content, language, country):
-        post = Post(user_id=user.get_public_id(), content=content, language=language, country=country)
+        post = Post(
+            user_id=user.get_public_id(),
+            user_name=user.get_obj().get(User.NAME, None),
+            user_anonymous=False,
+            content=content,
+            language=language,
+            country=country
+        )
 
         post_obj = post.get_obj()
 
@@ -282,3 +290,11 @@ class PostRepo(BaseRepo):
         )
 
         return post
+
+    def on_user_name_changed(self, user_public_id, user_name):
+        self.db.update_many(
+            {Post.USER_ID: user_public_id},
+            {"$set": {
+                Post.USER_NAME: user_name
+            }}
+        )

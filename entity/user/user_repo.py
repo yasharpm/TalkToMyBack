@@ -50,6 +50,15 @@ class UserRepo(BaseRepo):
             user_obj[User.NAME] = name
             changes[User.NAME] = name
 
+            PostRepo().on_user_name_changed(user.get_public_id(), name)
+
+            posts = user_obj[User.POSTS]
+
+            for post in posts:
+                post[Post.USER_NAME] = name
+
+            changes[User.POSTS] = posts
+
         if about != IGNORE:
             user_obj[User.ABOUT] = about
             changes[User.ABOUT] = about

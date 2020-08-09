@@ -2,9 +2,8 @@ import falcon
 
 from v1.authentication import authenticate
 from entity.report.report import Report
-from entity.post.post_repo import PostRepo
-from entity.user.user_repo import UserRepo
-from entity.sync.sync_repo import SyncRepo
+from entity.repositories import USER_REPO
+from entity.repositories import POST_REPO
 
 
 class _:
@@ -37,9 +36,7 @@ class _:
             resp.media = {'message': 'Reason must be an integer.'}
             return
 
-        post_repo = PostRepo()
-
-        post = post_repo.find_post(post_id)
+        post = POST_REPO.find_post(post_id)
 
         if not post:
             resp.status = falcon.HTTP_406  # Not acceptable
@@ -54,15 +51,13 @@ class _:
         report = Report(reporting_user_id=user.get_public_id(), reported_user_id=post.get_user_id(), post_id=post_id,
                         reason=reason, description=description)
 
-        post = post_repo.on_new_report(post, report)
-
-        user_repo = UserRepo()
+        post = POST_REPO.on_new_report(post, report)
 
         #  These two commands can be aggregated into one command.
-        user_repo.update_user_post(post)
-        user_repo.on_report_on_user(post.get_user_id(), report)
+        USER_REPO.update_user_post(post)
+        USER_REPO.on_report_on_user(post.get_user_id(), report)
 
-        user_repo.on_new_report(user, report)
+        USER_REPO.on_new_report(user, report)
 
         resp.status = falcon.HTTP_200
         resp.media = report.get_obj()

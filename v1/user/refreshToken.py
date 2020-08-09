@@ -1,8 +1,8 @@
 import falcon
 
-from entity.refresh_token.refresh_token_repo import RefreshTokenRepo
 import entity.refresh_token.refresh_token
-from entity.token.token_repo import TokenRepo
+from entity.repositories import TOKEN_REPO
+from entity.repositories import REFRESH_TOKEN_REPO
 
 
 class refreshToken:
@@ -16,8 +16,7 @@ class refreshToken:
             resp.media = {'message': "'userId' or 'refreshToken' not provided."}
             return
 
-        refresh_token_repo = RefreshTokenRepo()
-        refresh_token = refresh_token_repo.find(refresh_token_id)
+        refresh_token = REFRESH_TOKEN_REPO.find(refresh_token_id)
 
         # Is the refresh token valid?
         if refresh_token:
@@ -26,7 +25,7 @@ class refreshToken:
 
             # Validate with user id (security measure)
             if token_user_public_id == user_id:
-                token = TokenRepo().new_token(refresh_token)
+                token = TOKEN_REPO.new_token(refresh_token)
 
                 # Token is good to go
                 resp.status = falcon.HTTP_200

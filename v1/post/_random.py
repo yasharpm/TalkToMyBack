@@ -2,7 +2,7 @@ import falcon
 
 import ttm_util
 from v1.authentication import authenticate
-from entity.post.post_repo import PostRepo
+from entity.repositories import POST_REPO
 
 MAXIMUM_RANDOM_POST_COUNT = 50
 
@@ -29,7 +29,7 @@ class random:
             resp.media = {'message': 'Invalid country code'}
             return
 
-        posts = PostRepo().random_posts(count, language, country)
+        posts = POST_REPO.random_posts(count, language, country)
         
         resp.status = falcon.HTTP_200
         resp.media = {'posts': posts}

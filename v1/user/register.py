@@ -1,8 +1,8 @@
 import falcon
 
-from entity.user.user_repo import UserRepo
-from entity.refresh_token.refresh_token_repo import RefreshTokenRepo
-from entity.token.token_repo import TokenRepo
+from entity.repositories import REFRESH_TOKEN_REPO
+from entity.repositories import TOKEN_REPO
+from entity.repositories import USER_REPO
 
 
 class Register:
@@ -10,15 +10,12 @@ class Register:
     def on_post(self, req, resp):
         raw_password = req.media.get('password')
 
-        user_repo = UserRepo()
-        user = user_repo.new_user(raw_password)
+        user = USER_REPO.new_user(raw_password)
         user_id = user.get_mongo_id()
 
-        refresh_token_repo = RefreshTokenRepo()
-        refresh_token = refresh_token_repo.new_refresh_token(user)
+        refresh_token = REFRESH_TOKEN_REPO.new_refresh_token(user)
 
-        token_repo = TokenRepo()
-        token = token_repo.new_token(refresh_token)
+        token = TOKEN_REPO.new_token(refresh_token)
 
         response = {
             'userId': user.get_public_id(),

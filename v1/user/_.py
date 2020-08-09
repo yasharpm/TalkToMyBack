@@ -1,7 +1,7 @@
 import falcon
 
 from v1.authentication import authenticate
-from entity.user.user_repo import UserRepo
+from entity.repositories import USER_REPO
 from entity.user.user_repo import IGNORE
 
 
@@ -33,12 +33,10 @@ class _:
 
         req_user_id = req.get_param('id', 'self')
 
-        user_repo = UserRepo()
-
         if req.req_user_id != 'self' and req_user_id != user.get_public_id():
             raw_req_user_id = bytes.fromhex(req_user_id)
 
-            user = user_repo.find_user(raw_req_user_id)
+            user = USER_REPO.find_user(raw_req_user_id)
 
         if not user:
             resp.status = falcon.HTTP_NOT_FOUND
@@ -77,7 +75,7 @@ class _:
             resp.media = {'message': 'Invalid contact length.'}
             return
 
-        UserRepo.update_user(user, name, about, contact)
+        USER_REPO.update_user(user, name, about, contact)
 
         resp.status = falcon.HTTP_ACCEPTED
         resp.media = user.get_public_obj()

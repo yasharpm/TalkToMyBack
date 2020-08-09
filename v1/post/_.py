@@ -2,9 +2,9 @@ import falcon
 
 from v1.authentication import authenticate
 from entity.post.post_util import validate
-from entity.post.post_repo import PostRepo
-from entity.user.user_repo import UserRepo
-from entity.sync.sync_repo import SyncRepo
+from entity.repositories import USER_REPO
+from entity.repositories import POST_REPO
+from entity.repositories import SYNC_REPO
 
 
 class _:
@@ -22,11 +22,11 @@ class _:
         if not validate(post_content, language, country, resp):
             return
 
-        post = PostRepo().new_post(user, post_content, language, country)
+        post = POST_REPO.new_post(user, post_content, language, country)
 
-        UserRepo().on_new_post(user, post)
+        USER_REPO.on_new_post(user, post)
 
-        sync = SyncRepo().new_post(post)
+        sync = SYNC_REPO.new_post(post)
 
         resp.status = falcon.HTTP_200
         resp.media = post.get_public_obj()
@@ -47,7 +47,7 @@ class _:
 
         post_id = req.get_param('id')
 
-        post = PostRepo().find_post(post_id)
+        post = POST_REPO.find_post(post_id)
 
         if not post:
             resp.status = falcon.HTTP_404  # Not found

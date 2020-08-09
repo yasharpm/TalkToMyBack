@@ -1,9 +1,9 @@
 import falcon
 
 import ttm_util
-from entity.token.token_repo import TokenRepo
 from entity.token.token import Token
-from entity.user.user_repo import UserRepo
+from entity.repositories import TOKEN_REPO
+from entity.repositories import USER_REPO
 
 
 def authenticate(req, resp):
@@ -14,7 +14,7 @@ def authenticate(req, resp):
         resp.media = {'message': "'token' not provided in header."}
         return None
 
-    token = TokenRepo().authorize(token_id)
+    token = TOKEN_REPO.authorize(token_id)
 
     if not token:
         resp.status = falcon.HTTP_401  # Unauthorized
@@ -33,7 +33,7 @@ def authenticate(req, resp):
 
     user_id = token_obj[Token.USER_ID]
 
-    user = UserRepo().find_user(user_id)
+    user = USER_REPO.find_user(user_id)
 
     if not user:
         # Someone deleted the user from database without telling?!

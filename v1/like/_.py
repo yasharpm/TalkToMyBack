@@ -2,9 +2,9 @@ import falcon
 
 from v1.authentication import authenticate
 from entity.like.like import Like
-from entity.post.post_repo import PostRepo
-from entity.user.user_repo import UserRepo
-from entity.sync.sync_repo import SyncRepo
+from entity.repositories import USER_REPO
+from entity.repositories import POST_REPO
+from entity.repositories import SYNC_REPO
 
 
 class _:
@@ -41,7 +41,7 @@ class _:
 
         like = Like(user_id=user.get_public_id(), post_id=post_id)
 
-        (post, has_change) = PostRepo().on_new_like(like, liked)
+        (post, has_change) = POST_REPO.on_new_like(like, liked)
 
         if not post:
             resp.status = falcon.HTTP_406  # Not acceptable
@@ -53,13 +53,13 @@ class _:
             resp.media = like.get_obj()
             return
 
-        user_repo = UserRepo()
+        user_repo = USER_REPO
 
         user_repo.update_user_post(post)
 
         user_repo.on_new_like(user, like, liked)
 
-        sync = SyncRepo().new_like(actor=user.get_public_id(), affected=post.get_user_id(), like=like, liked=liked)
+        sync = SYNC_REPO.new_like(actor=user.get_public_id(), affected=post.get_user_id(), like=like, liked=liked)
 
         if liked:
             #  TODO Use sync to send a notification.
