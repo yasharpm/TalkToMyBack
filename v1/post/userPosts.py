@@ -28,7 +28,7 @@ class userPosts:
             resp.media = {'message': 'User id not found.'}
             return
 
-        user_obj = user.get_public_obj()
+        user_obj = user.get_obj()
 
         total_count = user_obj[User.POSTED_POSTS_COUNT]
 
