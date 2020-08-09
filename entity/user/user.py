@@ -78,3 +78,5 @@ class User(BaseEntity):
         obj.pop(User.REPORTS, None)
         obj.pop(User.REPORTS_ON_USER, None)
         obj.pop(User.FCM_TOKEN, None)
+
+        return obj
