@@ -33,7 +33,7 @@ def authenticate(req, resp):
 
     user_id = token_obj[Token.USER_ID]
 
-    user = USER_REPO.find_user(user_id)
+    user = USER_REPO.find_user_by_mongo_id(user_id)
 
     if not user:
         # Someone deleted the user from database without telling?!

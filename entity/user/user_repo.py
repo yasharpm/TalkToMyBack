@@ -5,6 +5,7 @@ from entity.base_repo import BaseRepo
 from entity.user.user import User
 from entity.post.post import Post
 from entity.like.like import Like
+from entity.repositories import POST_REPO
 
 
 IGNORE = object()
@@ -33,8 +34,16 @@ class UserRepo(BaseRepo):
 
         return user
 
-    def find_user(self, user_id):
+    def find_user_by_mongo_id(self, user_id):
         companion = self.db.find_one({User.MONGO_ID: user_id})
+
+        if companion:
+            return User(companion=companion)
+
+        return None
+
+    def find_user(self, user_id):
+        companion = self.db.find_one({User.ID: user_id})
 
         if companion:
             return User(companion=companion)
@@ -50,7 +59,7 @@ class UserRepo(BaseRepo):
             user_obj[User.NAME] = name
             changes[User.NAME] = name
 
-            PostRepo().on_user_name_changed(user.get_public_id(), name)
+            POST_REPO.on_user_name_changed(user.get_public_id(), name)
 
             posts = user_obj[User.POSTS]
 
