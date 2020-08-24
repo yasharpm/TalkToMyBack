@@ -9,8 +9,9 @@ from entity.user.user import User
 
 
 def init():
-    cred = credentials.Certificate("/home/opentalkz/api/opentalkz-firebase-adminsdk.json")
-    firebase_admin.initialize_app(cred)
+    #  cred = credentials.Certificate("/home/opentalkz/api/opentalkz-firebase-adminsdk.json")
+    #  firebase_admin.initialize_app(cred)
+    pass  # TODO
 
 
 def _send_message(message):

@@ -1,3 +1,6 @@
+from entity.community.community_repo import CommunityRepo
+COMMUNITY_REPO = CommunityRepo()
+
 from entity.post.post_repo import PostRepo
 POST_REPO = PostRepo()
 
