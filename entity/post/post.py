@@ -1,4 +1,5 @@
 from entity.base_entity import BaseEntity
+from entity.repositories import *
 
 
 class Post(BaseEntity):
@@ -9,6 +10,7 @@ class Post(BaseEntity):
     CONTENT = 'content'
     LANGUAGE = 'language'
     COUNTRY = 'country'
+    COMMUNITY = 'community'
     COMMENT_COUNT = 'comment_count'
     LIKE_COUNT = 'like_count'
     VIEW_COUNT = 'view_count'
@@ -19,7 +21,8 @@ class Post(BaseEntity):
 
     UTIL_POST_COUNT = 'util_post_count'
 
-    def __init__(self, user_id=None, user_name=None, user_anonymous=None, content=None, language=None, country=None, companion=None):
+    def __init__(self, user_id=None, user_name=None, user_anonymous=None, content=None, language=None, country=None,
+                 community=None, companion=None):
         if not companion:
             companion = {}
 
@@ -41,6 +44,9 @@ class Post(BaseEntity):
         if country:
             companion[Post.COUNTRY] = country
 
+        if community:
+            companion[Post.COMMUNITY] = community
+
         BaseEntity.__init__(self, companion)
 
     def get_obj(self):
@@ -48,6 +54,9 @@ class Post(BaseEntity):
 
         if not obj.get(Post.USER_ANONYMOUS):
             obj[Post.USER_ANONYMOUS] = False
+
+        if not obj.get(Post.COMMUNITY):
+            obj[Post.COMMUNITY] = COMMUNITY_REPO.get_public_community_number()
 
         if not obj.get(Post.COMMENT_COUNT):
             obj[Post.COMMENT_COUNT] = 0
@@ -84,6 +93,16 @@ class Post(BaseEntity):
         if public_obj[Post.USER_ANONYMOUS]:
             public_obj[Post.USER_ID] = None
             public_obj[Post.USER_NAME] = None
+
+        community_number = public_obj.get(Post.COMMUNITY)
+        community = COMMUNITY_REPO.get_community_by_number(community_number)
+
+        if not community:
+            community_id = None
+        else:
+            community_id = community.get_public_id()
+
+        public_obj[Post.COMMUNITY] = community_id
 
         return public_obj
 

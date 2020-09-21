@@ -2,7 +2,9 @@ import falcon
 
 import ttm_util
 from v1.authentication import authenticate
+from entity.repositories import COMMUNITY_REPO
 from entity.repositories import POST_REPO
+from entity.community.community_errors import *
 
 MAXIMUM_RANDOM_POST_COUNT = 50
 
@@ -18,6 +20,7 @@ class random:
         count = req.get_param_as_int('count', min_value=1, max_value=MAXIMUM_RANDOM_POST_COUNT)
         language = req.get_param('language')
         country = req.get_param('country')
+        community = req.get_param('community')
 
         if language and not ttm_util.validate_language(language):
             resp.status = falcon.HTTP_400  # Bad request
@@ -29,7 +32,17 @@ class random:
             resp.media = {'message': 'Invalid country code'}
             return
 
-        posts = POST_REPO.random_posts(count, language, country)
+        if community is None or len(community) == 0:
+            community = COMMUNITY_REPO.get_public_community_id()
+        else:
+            community = bytes.fromhex(community)
+
+        posts = POST_REPO.random_posts(count, language, country, community)
+
+        if posts == COMMUNITY_DOES_NOT_EXIST:
+            resp.status = falcon.HTTP_404  # Not found
+            resp.media = {'message': 'Community not found'}
+            return
         
         resp.status = falcon.HTTP_200
         resp.media = {'posts': posts}

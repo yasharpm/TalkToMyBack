@@ -2,9 +2,11 @@ import falcon
 
 from v1.authentication import authenticate
 from entity.post.post_util import validate
+from entity.repositories import COMMUNITY_REPO
 from entity.repositories import USER_REPO
 from entity.repositories import POST_REPO
 from entity.repositories import SYNC_REPO
+from entity.community.community import Community
 
 
 class _:
@@ -18,11 +20,24 @@ class _:
         post_content = req.media.get('post')
         language = req.media.get('language')
         country = req.media.get('country')
+        community = req.media.get('community')
 
         if not validate(post_content, language, country, resp):
             return
 
-        post = POST_REPO.new_post(user, post_content, language, country)
+        if not community:
+            community = COMMUNITY_REPO.get_public_community_number()
+        else:
+            community = COMMUNITY_REPO.get_community(bytes.fromhex(community))
+
+            if not community:
+                resp.status = falcon.HTTP_400  # Bad request
+                resp.media = {'message': 'Community id not found.'}
+                return
+
+            community = community.get_obj()[Community.NUMBER]
+
+        post = POST_REPO.new_post(user, post_content, language, country, community)
 
         USER_REPO.on_new_post(user, post)
 

@@ -6,6 +6,8 @@ from entity.base_repo import BaseRepo
 from entity.post.post import Post
 from entity.user.user import User
 from entity.like.like import Like
+from entity.repositories import COMMUNITY_REPO
+from entity.community.community_errors import *
 import ttm_util
 
 ONE_DAY = 1000 * 60 * 60 * 24
@@ -34,17 +36,25 @@ class PostRepo(BaseRepo):
         BaseRepo.__init__(self, 'post')
 
         self.db.create_index([(Post.USER_ID, pymongo.HASHED)], name='user_id')
+        self.db.create_index([(Post.LANGUAGE, pymongo.HASHED)], name='language')
+        self.db.create_index([(Post.COUNTRY, pymongo.HASHED)], name='country')
+        self.db.create_index([(Post.COMMUNITY, pymongo.HASHED)], name='community')
         self.db.create_index([(Post.VIEW_COUNT, pymongo.HASHED)], name='view_count')
         self.db.create_index([(Post.REPORT_COUNT, pymongo.HASHED)], name='report_count')
 
-    def new_post(self, user, content, language, country):
+        self.db.update_many({}, {"$set": {
+                Post.COMMUNITY: COMMUNITY_REPO.get_public_community_number()
+            }})
+
+    def new_post(self, user, content, language, country, community):
         post = Post(
             user_id=user.get_public_id(),
             user_name=user.get_obj().get(User.NAME, None),
             user_anonymous=False,
             content=content,
             language=language,
-            country=country
+            country=country,
+            community=community
         )
 
         post_obj = post.get_obj()
@@ -57,7 +67,7 @@ class PostRepo(BaseRepo):
 
         return post
 
-    def random_posts(self, count, language, country, processed=True):
+    def random_posts(self, count, language, country, community, processed=True):
         match = {}
 
         if language:
@@ -65,6 +75,16 @@ class PostRepo(BaseRepo):
 
         if country:
             match[Post.COUNTRY] = country
+
+        if not community:
+            community = COMMUNITY_REPO.get_public_community_id()
+
+        start, end = COMMUNITY_REPO.get_community_number_range(community)
+
+        if start == COMMUNITY_DOES_NOT_EXIST:
+            return COMMUNITY_DOES_NOT_EXIST
+
+        match[Post.COMMUNITY] = {'$gte': start, '$lt': end}  # TODO ALSO RESET ALL PREEXISTING POSTS
 
         age_ranges, probabilities = self._make_age_ranges_and_probabilities(RANDOM_CASES)
 
@@ -91,7 +111,7 @@ class PostRepo(BaseRepo):
 
         return posts
 
-    def exhibition_posts(self, count, language, country, day, week, month):
+    def exhibition_posts(self, count, language, country, community, day, week, month):
         match = {}
 
         if language:
@@ -99,6 +119,16 @@ class PostRepo(BaseRepo):
 
         if country:
             match[Post.COUNTRY] = country
+
+        if not community:
+            community = COMMUNITY_REPO.get_public_community_id()
+
+        start, end = COMMUNITY_REPO.get_community_number_range(community)
+
+        if start == COMMUNITY_DOES_NOT_EXIST:
+            return COMMUNITY_DOES_NOT_EXIST
+
+        match[Post.COMMUNITY] = {'$gte': start, '$lt': end}
 
         random_cases = [
             (TODAY_POSTS_AGE, day / 100),

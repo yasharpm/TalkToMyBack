@@ -6,6 +6,9 @@ from entity.community.community_errors import *
 
 class CommunityRepo(BaseRepo):
 
+    PUBLIC = 'PUBLIC'
+    PRIVATE = 'PRIVATE'
+
     def __init__(self):
         BaseRepo.__init__(self, 'community')
 
@@ -15,16 +18,52 @@ class CommunityRepo(BaseRepo):
         self.community_by_number = {}
         self.number_tree = {}
 
+        has_public = False
+        has_private = False
+
         for raw_community in cursor:
             community = Community(companion=raw_community)
 
             id = raw_community[Community.ID]
             number = raw_community[Community.NUMBER]
 
+            type = get_type(number)
+
+            if type == TYPE_MAIN:
+                name = raw_community[Community.NAME]
+
+                if name == CommunityRepo.PUBLIC:
+                    has_public = True
+                    self.public_id = id
+                    self.public_number = number
+                elif name == CommunityRepo.PRIVATE:
+                    has_private = True
+                    self.private_id = id
+                    self.private_number = number
+
             self.community_by_id[id] = community
             self.community_by_number[number] = community
 
             self._add_to_tree(number)
+
+        if not has_public:
+            public_community_obj = self.new_community(None, CommunityRepo.PUBLIC).get_obj()
+            self.public_id = public_community_obj[Community.ID]
+            self.public_number = public_community_obj[Community.NUMBER]
+
+        if not has_private:
+            private_community_obj = self.new_community(None, CommunityRepo.PRIVATE).get_obj()
+            self.private_id = private_community_obj[Community.ID]
+            self.private_number = private_community_obj[Community.NUMBER]
+
+        print('Public community id: ', self.public_id.hex())
+        print('Private community id: ', self.private_id.hex())
+
+    def get_public_community_id(self):
+        return self.public_id
+
+    def get_public_community_number(self):
+        return self.public_number
 
     def get_community_tree(self, id):
         if id is None:
@@ -80,11 +119,14 @@ class CommunityRepo(BaseRepo):
     def get_community(self, id):
         return self.community_by_id.get(id)
 
+    def get_community_by_number(self, number):
+        return self.community_by_number.get(number)
+
     def get_community_number_range(self, id):
         if id is None:
             number = 0
         else:
-            community = self.community_by_id[id]
+            community = self.community_by_id.get(id)
 
             if not community:
                 return COMMUNITY_DOES_NOT_EXIST, None
