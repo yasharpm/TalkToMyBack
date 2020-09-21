@@ -16,13 +16,14 @@ class _:
 
         parent_id = req.media.get('parent_id')
         name = req.media.get('name')
+        description = req.media.get('description')
 
         if not parent_id:
             parent_id = None
         else:
             parent_id = bytes.fromhex(parent_id)
 
-        community = COMMUNITY_REPO.new_community(parent_id=parent_id, name=name)
+        community = COMMUNITY_REPO.new_community(parent_id=parent_id, name=name, description=description)
 
         if community == COMMUNITY_DOES_NOT_EXIST:
             resp.status = falcon.HTTP_400  # Bad request

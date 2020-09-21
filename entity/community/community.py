@@ -4,16 +4,20 @@ from entity.base_entity import BaseEntity
 class Community(BaseEntity):
 
     NAME = 'name'
+    DESCRIPTION = 'description'
     NUMBER = 'number'
 
     CHILDREN = 'children'  # It is used in community repo when it wants to return a tree.
 
-    def __init__(self, name=None, number=None, companion=None):
+    def __init__(self, name=None, description=None, number=None, companion=None):
         if not companion:
             companion = {}
 
         if name:
             companion[Community.NAME] = name
+
+        if description:
+            companion[Community.DESCRIPTION] = description
 
         if number:
             companion[Community.NUMBER] = number

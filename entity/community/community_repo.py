@@ -47,12 +47,12 @@ class CommunityRepo(BaseRepo):
             self._add_to_tree(number)
 
         if not has_public:
-            public_community_obj = self.new_community(None, CommunityRepo.PUBLIC).get_obj()
+            public_community_obj = self.new_community(None, CommunityRepo.PUBLIC, None).get_obj()
             self.public_id = public_community_obj[Community.ID]
             self.public_number = public_community_obj[Community.NUMBER]
 
         if not has_private:
-            private_community_obj = self.new_community(None, CommunityRepo.PRIVATE).get_obj()
+            private_community_obj = self.new_community(None, CommunityRepo.PRIVATE, None).get_obj()
             self.private_id = private_community_obj[Community.ID]
             self.private_number = private_community_obj[Community.NUMBER]
 
@@ -80,7 +80,7 @@ class CommunityRepo(BaseRepo):
 
         return self._create_tree(number, number_tree)
 
-    def new_community(self, parent_id, name):
+    def new_community(self, parent_id, name, description):
         if parent_id is not None:
             parent = self.community_by_id.get(parent_id)
 
@@ -101,7 +101,7 @@ class CommunityRepo(BaseRepo):
         if number < 0:
             return number
 
-        community = Community(name=name, number=number)
+        community = Community(name=name, description=description, number=number)
 
         community_obj = community.get_obj()
 
