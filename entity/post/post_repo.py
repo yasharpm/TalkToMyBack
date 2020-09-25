@@ -42,9 +42,9 @@ class PostRepo(BaseRepo):
         self.db.create_index([(Post.VIEW_COUNT, pymongo.HASHED)], name='view_count')
         self.db.create_index([(Post.REPORT_COUNT, pymongo.HASHED)], name='report_count')
 
-        self.db.update_many({}, {"$set": {
-                Post.COMMUNITY: COMMUNITY_REPO.get_public_community_number()
-            }})
+        #self.db.update_many({}, {"$set": {
+        #        Post.COMMUNITY: COMMUNITY_REPO.get_public_community_number()
+        #    }})
 
     def new_post(self, user, content, language, country, community):
         post = Post(
