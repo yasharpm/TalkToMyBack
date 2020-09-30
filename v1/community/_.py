@@ -59,6 +59,12 @@ class _:
 
         if id_name is not None and len(id_name) > 0:
             community = COMMUNITY_REPO.get_community_by_id_name(id_name)
+
+            if community is None:
+                resp.status = falcon.HTTP_404  # Not found
+                resp.media = {'message': 'Community id name not found.'}
+                return
+
             id = community.get_obj()[Community.ID]
 
         if return_tree:

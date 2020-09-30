@@ -32,7 +32,7 @@ class CommunityRepo(BaseRepo):
             id = raw_community[Community.ID]
             name = raw_community[Community.NAME]
             number = raw_community[Community.NUMBER]
-            id_name = raw_community[Community.ID_NAME]
+            id_name = raw_community.get(Community.ID_NAME, None)
 
             type = get_type(number)
 
@@ -71,10 +71,14 @@ class CommunityRepo(BaseRepo):
             self.private_number = private_community_obj[Community.NUMBER]
 
         if not has_test:
-            test_community_obj = self.new_community(self.private_id, CommunityRepo.COMMUNITY_TEST, 'TEST',
-                                                    CommunityRepo.COMMUNITY_TEST_ID_NAME).get_obj()
+            test_community = self.new_community(self.private_id, CommunityRepo.COMMUNITY_TEST, 'TEST',
+                                                    CommunityRepo.COMMUNITY_TEST_ID_NAME)
+            test_community_obj = test_community.get_obj()
+
             self.test_id = test_community_obj[Community.ID]
             self.test_number = test_community_obj[Community.NUMBER]
+
+            self.community_by_id_name[CommunityRepo.COMMUNITY_TEST_ID_NAME] = test_community
 
         print('Public community id: ', self.public_id.hex())
         print('Private community id: ', self.private_id.hex())

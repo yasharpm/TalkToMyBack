@@ -23,7 +23,7 @@ class Community(BaseEntity):
         if number:
             companion[Community.NUMBER] = number
 
-        if id_name:
+        if id_name is not None:
             companion[Community.ID_NAME] = id_name
 
         BaseEntity.__init__(self, companion)
