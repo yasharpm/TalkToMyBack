@@ -12,18 +12,18 @@ import ttm_util
 
 ONE_DAY = 1000 * 60 * 60 * 24
 
-# RANDOM_CASES = [
-#     (ONE_DAY, 0.55),
-#     (ONE_DAY * 3, 0.25),
-#     (ONE_DAY * 7, 0.1),
-#     (ONE_DAY * 30, 0.05)
-# ]
-
 RANDOM_CASES = [
-    (ONE_DAY * 10, 0.01),
-    (ONE_DAY * 20, 0.1),
-    (ONE_DAY * 4 * 365, 0.3)
+    (ONE_DAY, 0.4),
+    (ONE_DAY * 3, 0.25),
+    (ONE_DAY * 7, 0.2),
+    (ONE_DAY * 30, 0.1)
 ]
+
+# RANDOM_CASES = [
+#     (ONE_DAY * 10, 0.01),
+#     (ONE_DAY * 20, 0.1),
+#     (ONE_DAY * 4 * 365, 0.3)
+# ]
 
 TODAY_POSTS_AGE = ONE_DAY
 RECENT_POSTS_AGE = TODAY_POSTS_AGE * 7
