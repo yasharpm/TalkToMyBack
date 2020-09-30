@@ -107,10 +107,11 @@ class CommunityRepo(BaseRepo):
         return self._create_tree(number, number_tree)
 
     def new_community(self, parent_id, name, description, id_name):
-        if id_name is not None and self.get_community_by_id_name(id_name) is not None:
-            return ID_NAME_DUPLICATE
+        if id_name is not None:
+            if self.get_community_by_id_name(id_name) is not None:
+                return ID_NAME_DUPLICATE
 
-        id_name = id_name.lower()
+            id_name = id_name.lower()
 
         if parent_id is not None:
             parent = self.community_by_id.get(parent_id)
@@ -142,7 +143,9 @@ class CommunityRepo(BaseRepo):
 
         self.community_by_id[community_obj[Community.ID]] = community
         self.community_by_number[number] = community
-        self.community_by_id_name[id_name] = community
+
+        if id_name is not None:
+            self.community_by_id_name[id_name] = community
 
         self._add_to_tree(number)
 
