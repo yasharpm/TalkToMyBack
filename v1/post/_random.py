@@ -5,6 +5,7 @@ from v1.authentication import authenticate
 from entity.repositories import COMMUNITY_REPO
 from entity.repositories import POST_REPO
 from entity.community.community_errors import *
+from entity.community.community import Community
 
 MAXIMUM_RANDOM_POST_COUNT = 50
 
@@ -35,7 +36,14 @@ class random:
         if community is None or len(community) == 0:
             community = COMMUNITY_REPO.get_public_community_id()
         else:
-            community = bytes.fromhex(community)
+            community = COMMUNITY_REPO.get_community_by_id_name(community)
+
+            if community is not None:
+                community = community.get_obj()[Community.ID]
+            else:
+                resp.status = falcon.HTTP_404  # Not found
+                resp.media = {'message': 'Community not found'}
+                return
 
         posts = POST_REPO.random_posts(count, language, country, community)
 
