@@ -28,11 +28,11 @@ class _:
         if not community:
             community = COMMUNITY_REPO.get_public_community_number()
         else:
-            community = COMMUNITY_REPO.get_community(bytes.fromhex(community))
+            community = COMMUNITY_REPO.get_community_by_id_name(community)
 
             if not community:
                 resp.status = falcon.HTTP_400  # Bad request
-                resp.media = {'message': 'Community id not found.'}
+                resp.media = {'message': 'Community id name not found.'}
                 return
 
             community = community.get_obj()[Community.NUMBER]
